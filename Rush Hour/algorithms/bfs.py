@@ -1,30 +1,22 @@
 from collections import deque
-from algorithms.base import SearchAlgorithm
 
-class BFS(SearchAlgorithm):
-    def solve(self, puzzle):
-        start_state = puzzle
-        queue = deque([start_state])
-        visited = set()
-        parent = {start_state: None}
 
-        while queue:
-            current = queue.popleft()
-            if current.is_goal():
-                return self.reconstruct_path(parent, current)
+def bfs_search(start):
+    queue = deque()
+    visited = set()
+    queue.append((start, []))
+    visited.add(start.to_tuple())
 
-            visited.add(current)
-
-            for neighbor in current.get_successors():
-                if neighbor not in visited and neighbor not in queue:
-                    parent[neighbor] = current
-                    queue.append(neighbor)
-
-        return []
-
-    def reconstruct_path(self, parent, state):
-        path = []
-        while state:
-            path.append(state)
-            state = parent[state]
-        return path[::-1]
+    while queue:
+        state, path = queue.popleft()
+        if state.isGoal():
+            return path
+        for k in state.vehicles:
+            for move_val in [-1, 1]:
+                new_state = state.copy()
+                if new_state.move(k, move_val):
+                    t = new_state.to_tuple()
+                    if t not in visited:
+                        visited.add(t)
+                        queue.append((new_state, path + [(k, move_val)]))
+    return None

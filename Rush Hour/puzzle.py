@@ -8,7 +8,7 @@ class Board:
         self.grid = []
         self.makeGrid(self.rows + 1)
         self.level = 0
-        self.vehicles = {}
+        self.vehicles = {} # list chứa car
         self.stages = [] # state
 
         # Read file -> map
@@ -48,7 +48,7 @@ class Board:
             for j in range(len(self.grid[0])):
                 self.grid[i][j] = 0
 
-
+    # 
     def stagePrepare(self):
         self.clearGrid()
         self.vehicles = {}
@@ -171,10 +171,17 @@ class Board:
                 for i in range(vPos[1], vPos[1] + vLen):
                     self.grid[vPos[0]][i] = vKind
                 return True
-    def isLevelCleared(self):
+    def isGoal(self):
         vehicle_x = self.vehicles['x']
         if vehicle_x.pos[0] >= 4 and vehicle_x.pos[1] == 2:
             self.vehicles['x'].pos = (6,2)
             return True
         else:
             return False
+    def to_tuple(self):
+        return tuple(tuple(row) for row in self.grid)
+    def copy(self):
+        new_puzzle = Board(self.rows, self.cols)
+        new_puzzle.grid = [row.copy() for row in self.grid]
+        new_puzzle.vehicles = self.vehicles.copy()
+        return new_puzzle

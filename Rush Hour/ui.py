@@ -25,8 +25,6 @@ def display_console(board):
         for v in board.vehicles:
             curr_v = board.vehicles[v]
             screen.blit(curr_v.image, (curr_v.pos[0] * stride_x + 100  , curr_v.pos[1] * stride_y + 100)) 
-
-
-
+            
         pygame.display.update()
 pygame.quit()
