@@ -3,65 +3,34 @@ MAX_ROWS = 6
 
 import pygame
 from pygame.locals import *
-
+'''
+Vehicle:
+    + index
+    + position
+    + length
+    + direction
+    + image
+'''
 class Vehicle:
-    def __init__(self, kind, pos, dir):
-        if type(kind) is str:
-            self.kind = kind
-            if self.kind == "x":
-                self.img_name = "./assets/red_car.png"
-                self.len = 2
-            elif self.kind == "a":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "b":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "c":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "d":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "e":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "f":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "g":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "h":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "i":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "j":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "k":
-                self.img_name = "./assets/car2.png"
-                self.len = 2
-            elif self.kind == "o":
-                self.img_name = "./assets/car3.png"
-                self.len = 3
-            elif self.kind == "p":
-                self.img_name = "./assets/car3.png"
-                self.len = 3
-            elif self.kind == "q":
-                self.img_name = "./assets/car3.png"
-                self.len = 3
-            elif self.kind == "r":
-                self.img_name = "./assets/car3.png"
-                self.len = 3
-            else:
-                raise Exception(kind , "does not belong to any kind")
-        else:
-            raise Exception(kind, "is not even a string")
+    def __init__(self, index, pos, length, dir):
 
-        if dir == "h" or  dir == "v":
+        if type(index) is int:
+            self.index = index
+            if self.index == 0:
+                self.img_name = "./assets/red_car.png"
+            else:
+                if length == 2:
+                    self.img_name = "./assets/car2.png"
+                elif length == 3:
+                    self.img_name = "./assets/car3.png"
+                else:
+                    raise Exception(length, "is not valid")
+        else:
+            raise Exception(index, "is not even a string")
+
+        self.len = length
+
+        if dir == "h" or dir == "v":
             self.dir = dir
         else:
             raise Exception("direction should be either 0 or 1")
@@ -77,7 +46,7 @@ class Vehicle:
 
         self.image = pygame.image.load(self.img_name)
         self.image = pygame.transform.scale(self.image, (self.len * 100, 100))
-        if self.dir == 'v':
+        if self.dir == "v":
             self.image = pygame.transform.rotate(self.image, 90)
 
         
