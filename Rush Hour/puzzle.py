@@ -1,4 +1,4 @@
-from vehicle import *
+from vehicle import Vehicle
 
 class Board:
     def __init__(self, rows=6, cols=6):
@@ -7,7 +7,7 @@ class Board:
         self.grid = []
         self.makeGrid(self.rows + 1)
         # self.level = 0
-        self.vehicles = {} # list chứa car -> lưu dạng dict
+        self.vehicles = {} # list chứa car -> lưu dạng dict: [kind] - [index, pos, len, dir]
         self.stages = [] # state
 
         
@@ -136,10 +136,10 @@ class Board:
                         return False
 
             if isUpdated:
-                if val > 0:
-                    self.grid[vPos[0]][vPos[1]] = 0
-                else:
-                    self.grid[vPos[0] + vLen - 1][vPos[1]]=0
+                # Assign "*" old place
+                for i in range(vPos[0], vPos[0] + vLen):
+                    self.grid[i][vPos[1]] = "*"
+                
                 self.vehicles[vKind].pos[0] += val
                 vPos = vehicle.pos
 
@@ -147,36 +147,105 @@ class Board:
                     self.grid[i][vPos[1]] = vKind
                 return True
 
-        
-
         elif vDir == 'v':
             if vPos[0] < 0 or vPos[0] > self.cols - 1 or \
                 vPos[1] + val < 0 or vPos[1] + val > self.rows - vLen :
                 return False
 
-            for i in range(vPos[1] +val, vPos[1]+val + vLen):
+            for i in range(vPos[1] + val, vPos[1] + val + vLen):
                 if self.grid[vPos[0]][i] != "*":
                     if self.grid[vPos[0]][i] != vKind:
                         isUpdated = False
                         return False
 
             if isUpdated:
-                if val > 0:
-                    self.grid[vPos[0]][vPos[1]] = "*"
-                else:
-                    self.grid[vPos[0]][vPos[1]+vLen - 1]=0
+                # Assign "*" old place
+                for j in range(vPos[1], vPos[1] + vLen):
+                    self.grid[vPos[0]][j] = "*"
+        
                 self.vehicles[vKind].pos[1] += val
                 vPos = vehicle.pos
-                self.grid[vPos[0]][vPos[1] - val] = 0
+                self.grid[vPos[0]][vPos[1] - val] = "*"
                 for i in range(vPos[1], vPos[1] + vLen):
                     self.grid[vPos[0]][i] = vKind
                 return True
+    
+    def is_move(self, kind, val):
+        if kind not in self.vehicles:
+            return False
+
+        vehicle = self.vehicles[kind]
+        vPos = vehicle.pos
+        vLen = vehicle.len
+        vDir = vehicle.dir
+        vKind = str(vehicle.index)
+
+        if kind == '0' and vPos[0] == 4:
+            return True
+
+        if vDir == 'h':
+            new_x = vPos[0] + val
+            if new_x < 0 or new_x > self.cols - vLen or vPos[1] < 0 or vPos[1] >= self.rows:
+                return False
+
+            for i in range(new_x, new_x + vLen):
+                if self.grid[i][vPos[1]] != "*" and self.grid[i][vPos[1]] != vKind:
+                    return False
+            return True
+
+        elif vDir == 'v':
+            new_y = vPos[1] + val
+            if vPos[0] < 0 or vPos[0] >= self.cols or new_y < 0 or new_y > self.rows - vLen:
+                return False
+
+            for i in range(new_y, new_y + vLen):
+                if self.grid[vPos[0]][i] != "*" and self.grid[vPos[0]][i] != vKind:
+                    return False
+            return True
+
+        return False
+
+    
     def isGoal(self):
         vehicle_x = self.vehicles['0']
         if vehicle_x.pos[0] >= 4 and vehicle_x.pos[1] == 2:
-            # self.vehicles['x'].pos = (6,2)
             return True
         else:
             return False
     
+    def copy(self):
+        new_board = Board(self.rows, self.cols)
+
+        new_board.grid = []
+        for row in self.grid:
+            new_board.grid.append(row[:])  
+
+        new_board.stages = []
+        for stage in self.stages:
+            new_board.stages.append(stage[:]) 
+        
+        new_board.vehicles = {}
+        for vehicle_id, vehicle in self.vehicles.items():
+            new_vehicle = Vehicle(
+                vehicle.index,
+                [vehicle.pos[0], vehicle.pos[1]],
+                vehicle.len,
+                vehicle.dir
+            )
+            new_board.vehicles[vehicle_id] = new_vehicle
+        
+        return new_board
+    def to_tuple(self):
+        grid_tuple = tuple(tuple(row) for row in self.grid)
+  
+        vehicles_tuple = tuple(
+            (vehicle_id, tuple(vehicle.pos)) 
+            for vehicle_id, vehicle in sorted(self.vehicles.items())
+        )
+        
+        return (grid_tuple, vehicles_tuple)
     
+    def compare(self, other_board):
+        if not isinstance(other_board, Board):
+            return False
+        return self.to_tuple() == other_board.to_tuple()

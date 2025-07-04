@@ -1,5 +1,8 @@
-from .bfs import bfs_search
-# from .dfs import dfs_search
-# from .a_star import a_star_search
+from .bfs import breadth_first_tree_search
+from .search import Problem, Node
 
-__all__ = ["bfs_search"]
+__all__ = [
+    "breadth_first_tree_search",
+    "Problem", 
+    "Node"
+]

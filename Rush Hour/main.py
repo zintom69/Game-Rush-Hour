@@ -1,32 +1,40 @@
-from puzzle import *
-from ui import *
-from algorithms import bfs_search
-
 import time
 import sys
+import pygame
 
-pygame.init()
-clock = pygame.time.Clock()
+from puzzle import Board
+from ui import display_console, display_console_goal
+from algorithms import Problem, Node, breadth_first_tree_search
+
+# pygame.init()
+# clock = pygame.time.Clock()
 
 # Map game
 board = Board()
+board.readMap(0)
 # print(board.grid)
-print(board.stages[0])
+# print(board.stages[0])
 board.stagePrepare()
-print(board)
+# print(board)
+# display_console(board)
 
-display_console(board)
+initial_state = board
+problem = Problem(initial_state, None)
+print(initial_state)
 
-# solution = bfs_search(board)
-# for move in solution:
-#     display_console(board)
-#     pygame.event.pump()
-#     time.sleep(0.6)
-#     board.move(*move)
+state = initial_state
+actions = problem.actions(state)
 
-# while True:
-#     display_console(board)
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             pygame.quit()
-#             sys.exit()
+# state2 = problem.result(state, actions[0])
+
+# for action in actions:
+#     tmp_state = problem.result(state, action)
+#     print(tmp_state)
+# # print(new_state)
+
+# node = Node(initial_state)
+solution = breadth_first_tree_search(problem)
+
+# for i in solution:
+#     print(i)
+
