@@ -185,22 +185,32 @@ class Board:
 
         if vDir == 'h':
             new_x = vPos[0] + val
+
+            
             if new_x < 0 or new_x > self.cols - vLen or vPos[1] < 0 or vPos[1] >= self.rows:
                 return False
-
-            for i in range(new_x, new_x + vLen):
-                if self.grid[i][vPos[1]] != "*" and self.grid[i][vPos[1]] != vKind:
-                    return False
+            if val > 0: 
+                for i in range(vPos[0], new_x + vLen):
+                    if self.grid[i][vPos[1]] != "*" and self.grid[i][vPos[1]] != vKind:
+                        return False
+            else:
+                for i in range(new_x, vPos[0]):
+                    if self.grid[i][vPos[1]] != "*" and self.grid[i][vPos[1]] != vKind:
+                        return False
             return True
 
         elif vDir == 'v':
             new_y = vPos[1] + val
             if vPos[0] < 0 or vPos[0] >= self.cols or new_y < 0 or new_y > self.rows - vLen:
                 return False
-
-            for i in range(new_y, new_y + vLen):
-                if self.grid[vPos[0]][i] != "*" and self.grid[vPos[0]][i] != vKind:
-                    return False
+            if val > 0: 
+                for i in range(vPos[1], new_y + vLen):
+                    if self.grid[vPos[0]][i] != "*" and self.grid[vPos[0]][i] != vKind:
+                        return False
+            else: 
+                for i in range(new_y, vPos[1]):
+                    if self.grid[vPos[0]][i] != "*" and self.grid[vPos[0]][i] != vKind:
+                        return False
             return True
 
         return False
