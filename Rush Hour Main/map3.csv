@@ -1,0 +1,5 @@
+algorithm,search_time,memory_usage,expanded_nodes
+bfs,56.861997,195.51,106
+dfs,27.181385,221.55,57
+ucs,447.616411,448.14,833
+a_star,445.566360,474.36,687

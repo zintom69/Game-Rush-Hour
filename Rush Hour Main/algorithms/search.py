@@ -25,8 +25,10 @@ class Problem:
         
     # Path cost = number of move step of car
     def path_cost(self, c, state1, action, state2):
+        kind, step = action
+        vehicle_length = state1.vehicles[kind].len
         if (state2.compare(self.result(state1, action))):
-            return c + abs(action[1])
+            return c + abs(step) * vehicle_length
         else:
             raise Exception("is not in the valid state")
     

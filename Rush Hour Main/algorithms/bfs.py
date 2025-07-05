@@ -9,20 +9,20 @@ def breadth_first_tree_search(problem):
     frontier = deque([Node(problem.initial_state)])  # FIFO queue
     visited = set()
     visited.add(problem.initial_state.to_tuple())
-    steps = 0  # Đếm số bước
+    # steps = 0  # Đếm số bước
 
     while frontier:
         node = frontier.popleft()
         # display_console(node.state)
-        steps += 1
+        # steps += 1
         if problem.goal_test(node.state):
             # display_console_goal(node.state)
-            print(f"BFS đã thực hiện {steps} bước tìm kiếm.")
+            # print(f"BFS đã thực hiện {steps} bước tìm kiếm.")
             return node
         for child in node.expand(problem):
             child_tuple = child.state.to_tuple()
             if child_tuple not in visited:
                 visited.add(child_tuple)
                 frontier.append(child)
-    print(f"BFS đã thực hiện {steps} bước tìm kiếm (không tìm thấy lời giải).")
+    # print(f"BFS đã thực hiện {steps} bước tìm kiếm (không tìm thấy lời giải).")
     return None
