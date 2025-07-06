@@ -1,434 +1,203 @@
 import pygame
 from puzzle import *
 from pygame.locals import *
-import os
+from button import Button
 
-w = 1000
-h = 700
+w = 1200
+h = 675
+w_board = w//2
+scale_board = w_board*100//800
+stride_x  = scale_board
+stride_y = scale_board
+x_pos_board = 500
 
-stride_x  = 80
-stride_y = 80
+# Image for button
+play_btn_img = pygame.image.load("./assets/ControlButtons/Play.png")
+reset_btn_img = pygame.image.load("./assets/ControlButtons/Reset.png")
+pause_btn_img = pygame.image.load("./assets/ControlButtons/Pause.png")
 
-# ================== VÙNG VẼ MENU (MAPS, ALGORITHM) ==================
-def draw_map_list(screen, maps, selected_map):
-    # Vẽ khung menu map với padding trên/dưới, khung ngoài ôm trọn các item
-    menu_width = int(w * 4 / 12)
-    padding_x = 10
-    padding_y = 18
-    grid_size = 4  # 4x4
-    cell_margin = 8
-    cell_size = (menu_width-60 - 2*padding_x - (grid_size+1)*cell_margin) // grid_size
-    rect_height = 50 + grid_size*cell_size + (grid_size+1)*cell_margin + padding_y*2
-    rect = pygame.Rect(30, 50, menu_width-60, rect_height)
-    pygame.draw.rect(screen, (245,245,255), rect, border_radius=15)
-    pygame.draw.rect(screen, (100,100,180), rect, 3, border_radius=15)
-    font_title = pygame.font.SysFont('arial', 28, bold=True)
-    font_cell = pygame.font.SysFont('arial', 22, bold=True)
-    # Căn giữa chữ 'Maps'
-    text = font_title.render('Maps', True, (60,60,120))
-    text_rect = text.get_rect(center=(rect.x+rect.width//2, rect.y+padding_y+18))
-    screen.blit(text, text_rect)
-    # Vẽ lưới 4x4 số 1-15, ô 16 là ô trống
-    start_x = rect.x + padding_x + cell_margin
-    start_y = rect.y + padding_y + 40
-    num = 1
-    for row in range(grid_size):
-        for col in range(grid_size):
-            # Không vẽ ô cuối cùng (ô trống)
-            if row == grid_size-1 and col == grid_size-1:
-                continue
-            cell_rect = pygame.Rect(
-                start_x + col*(cell_size+cell_margin),
-                start_y + row*(cell_size+cell_margin),
-                cell_size, cell_size
-            )
-            # Hiệu ứng chọn khi nhấn vào ô
-            if selected_map == (row*grid_size+col):
-                pygame.draw.rect(screen, (120,180,255), cell_rect, border_radius=8)
-                pygame.draw.rect(screen, (60,120,200), cell_rect, 4, border_radius=8)
-            else:
-                pygame.draw.rect(screen, (230,240,255), cell_rect, border_radius=8)
-                pygame.draw.rect(screen, (120,120,180), cell_rect, 2, border_radius=8)
-            # Vẽ số 1-15
-            t = font_cell.render(str(num), True, (40,40,80))
-            text_rect = t.get_rect(center=cell_rect.center)
-            screen.blit(t, text_rect)
-            num += 1
+background_map_img = pygame.image.load("./assets/MapButtons/Map.png")
+background_alg_img = pygame.image.load("./assets/AlgorithmButtons/Algorithm.png")
+
+# Load map buttons images
+map1_d = pygame.image.load("./assets/MapButtons/1(A).png")
+map1_s = pygame.image.load("./assets/MapButtons/1(B).png")
+map2_d = pygame.image.load("./assets/MapButtons/2(A).png")
+map2_s = pygame.image.load("./assets/MapButtons/2(B).png")
+map3_d = pygame.image.load("./assets/MapButtons/3(A).png")
+map3_s = pygame.image.load("./assets/MapButtons/3(B).png")
+map4_d = pygame.image.load("./assets/MapButtons/4(A).png")
+map4_s = pygame.image.load("./assets/MapButtons/4(B).png")
+map5_d = pygame.image.load("./assets/MapButtons/5(A).png")
+map5_s = pygame.image.load("./assets/MapButtons/5(B).png")
+map6_d = pygame.image.load("./assets/MapButtons/6(A).png")
+map6_s = pygame.image.load("./assets/MapButtons/6(B).png")
+map7_d = pygame.image.load("./assets/MapButtons/7(A).png")
+map7_s = pygame.image.load("./assets/MapButtons/7(B).png")
+map8_d = pygame.image.load("./assets/MapButtons/8(A).png")
+map8_s = pygame.image.load("./assets/MapButtons/8(B).png")
+map9_d = pygame.image.load("./assets/MapButtons/9(A).png")
+map9_s = pygame.image.load("./assets/MapButtons/9(B).png")
+map10_d = pygame.image.load("./assets/MapButtons/10(A).png")
+map10_s = pygame.image.load("./assets/MapButtons/10(B).png")
+map11_d = pygame.image.load("./assets/MapButtons/11(A).png")
+map11_s = pygame.image.load("./assets/MapButtons/11(B).png")
+map12_d = pygame.image.load("./assets/MapButtons/12(A).png")
+map12_s = pygame.image.load("./assets/MapButtons/12(B).png")
+map13_d = pygame.image.load("./assets/MapButtons/13(A).png")
+map13_s = pygame.image.load("./assets/MapButtons/13(B).png")
+map14_d = pygame.image.load("./assets/MapButtons/14(A).png")
+map14_s = pygame.image.load("./assets/MapButtons/14(B).png")
+
+map_button_default_imgs = [map1_d, map2_d, map3_d, map4_d, map5_d, map6_d, map7_d, map8_d, map9_d, map10_d, map11_d, map12_d, map13_d, map14_d]
+map_button_selected_imgs = [map1_s, map2_s, map3_s, map4_s, map5_s, map6_s, map7_s, map8_s, map9_s, map10_s, map11_s, map12_s, map13_s, map14_s]
+
+# Load alg buttons images
+bfs_default = pygame.image.load("./assets/AlgorithmButtons/BFS(A).png")
+bfs_selected = pygame.image.load("./assets/AlgorithmButtons/BFS(B).png")
+dfs_default = pygame.image.load("./assets/AlgorithmButtons/DFS(A).png")
+dfs_selected = pygame.image.load("./assets/AlgorithmButtons/DFS(B).png")
+ucs_default = pygame.image.load("./assets/AlgorithmButtons/UCS(A).png")
+ucs_selected = pygame.image.load("./assets/AlgorithmButtons/UCS(B).png")
+a_default = pygame.image.load("./assets/AlgorithmButtons/A(A).png")
+a_selected = pygame.image.load("./assets/AlgorithmButtons/A(B).png")
+
+alg_button_default_imgs = [bfs_default, dfs_default, ucs_default, a_default]
+alg_button_selected_imgs = [bfs_selected, dfs_selected, ucs_selected, a_selected]
+
+# step_count_img = pygame.image.load("./assets/MapButtons/StepCount.png")
+
+# Create button
+play_button = Button(x_pos_board + w_board//2 - play_btn_img.get_width()*0.15 - 25, w_board + 10, play_btn_img, 0.15)
+reset_button = Button(x_pos_board + w_board//2 + reset_btn_img.get_width()*0.15 + 25, w_board + 10, reset_btn_img, 0.15)
+pause_button = Button(x_pos_board + w_board//2 - pause_btn_img.get_width()*0.15 - 25, w_board + 10, pause_btn_img, 0.15)
+
+# Create background map and algorithm buttons
+background_map = Button(50, 20, background_map_img, 0.35)
+background_alg = Button(background_map.rect.x + background_map.rect.width//2 - background_alg_img.get_width()//2*0.25, background_map.rect.y + background_map.rect.height + 20, background_alg_img, 0.25)
+# step_count = Button(100, 100, step_count_img, 1)
+
+screen = pygame.display.set_mode((w, h))
+pygame.display.set_caption("Rush Hour Game")
+
+# Size and position for the node of map
+map_button_size = 50
+map_button_margin = 18
+map_grid_cols = 4
+map_grid_rows = (len(map_button_default_imgs) + map_grid_cols - 1) // map_grid_cols
+selected_map_idx = 0
+
+def draw_map_buttons(screen, x, y, selected_idx):
+    for i, img in enumerate(map_button_default_imgs):
+        row = i // map_grid_cols
+        col = i % map_grid_cols
+        btn_x = x + col * (map_button_size + map_button_margin)
+        btn_y = y + row * (map_button_size + map_button_margin)
+        if i < len(map_button_selected_imgs) and i == selected_idx:
+            btn_img = pygame.transform.scale(map_button_selected_imgs[i], (map_button_size, map_button_size))
         else:
-            pass  # ô trống không vẽ gì thêm
+            btn_img = pygame.transform.scale(img, (map_button_size, map_button_size))
+        screen.blit(btn_img, (btn_x, btn_y))
+    return
 
-# Vẽ menu chọn thuật toán bên dưới menu map
-# Liên kết: Khi click vào thuật toán sẽ đổi selected_algorithm, dùng để chọn giải thuật cho nút Play
+def get_map_button_at_pos(mx, my, x, y):
+    for i in range(len(map_button_default_imgs)):
+        row = i // map_grid_cols
+        col = i % map_grid_cols
+        btn_x = x + col * (map_button_size + map_button_margin)
+        btn_y = y + row * (map_button_size + map_button_margin)
+        rect = pygame.Rect(btn_x, btn_y, map_button_size, map_button_size)
+        if rect.collidepoint(mx, my):
+            return i
+    return None
 
-def draw_algorithm_list(screen, algorithms, selected_algorithm):
-    # Vẽ khung menu algorithm nhỏ hơn, chỉ bằng 3/4 menu map, layout 2x2 các ô vuông
-    menu_width = int(w * 4 / 12)
-    alg_width = int((menu_width-60) * 0.75)
-    padding_x = 10
-    padding_y = 12
-    grid_size = 2  # 2x2
-    cell_margin = 8
-    cell_size = (alg_width - 2*padding_x - (grid_size+1)*cell_margin) // grid_size
-    rect_height = 40 + grid_size*cell_size + (grid_size+1)*cell_margin + padding_y*2
-    # Tính lại vị trí y dựa trên khung map phía trên
-    map_grid_size = 4
-    map_cell_margin = 8
-    map_cell_size = (menu_width-60 - 2*padding_x - (map_grid_size+1)*map_cell_margin) // map_grid_size
-    map_rect_height = 50 + map_grid_size*map_cell_size + (map_grid_size+1)*map_cell_margin + 18*2
-    margin_top = 36
-    rect_y = 50 + map_rect_height + margin_top
-    # Căn giữa theo chiều ngang menu map
-    alg_x = 30 + ((menu_width-60) - alg_width)//2
-    rect = pygame.Rect(alg_x, rect_y, alg_width, rect_height)
-    pygame.draw.rect(screen, (245,245,255), rect, border_radius=15)
-    pygame.draw.rect(screen, (100,100,180), rect, 3, border_radius=15)
-    font_title = pygame.font.SysFont('arial', 24, bold=True)
-    font_cell = pygame.font.SysFont('arial', 18, bold=True)
-    # Căn giữa chữ 'Algorithm'
-    text = font_title.render('Algorithm', True, (60,60,120))
-    text_rect = text.get_rect(center=(rect.x+rect.width//2, rect.y+padding_y+14))
-    screen.blit(text, text_rect)
-    # Vẽ 2x2 các ô vuông thuật toán
-    start_x = rect.x + padding_x + cell_margin
-    start_y = rect.y + padding_y + 32
-    idx = 0
-    for row in range(grid_size):
-        for col in range(grid_size):
-            if idx >= len(algorithms):
-                continue
-            cell_rect = pygame.Rect(
-                start_x + col*(cell_size+cell_margin),
-                start_y + row*(cell_size+cell_margin),
-                cell_size, cell_size
-            )
-            color = (255,220,180) if idx == selected_algorithm else (255,255,255)
-            border_col = (180,120,80) if idx == selected_algorithm else (180,120,80)
-            pygame.draw.rect(screen, color, cell_rect, border_radius=8)
-            pygame.draw.rect(screen, border_col, cell_rect, 2, border_radius=8)
-            t = font_cell.render(algorithms[idx], True, (80,60,40))
-            text_rect = t.get_rect(center=cell_rect.center)
-            screen.blit(t, text_rect)
-            idx += 1
+# Size and position for the node of algorithm
+alg_button_size = 70
+alg_button_margin = 18
+alg_grid_cols = 2
+alg_grid_rows = (len(alg_button_default_imgs) + alg_grid_cols - 1) // alg_grid_cols
+selected_alg_idx = 0
 
-# ================== VÙNG VẼ BOARD (VIDEO) ==================
-def draw_board(screen, board):
-    # Board chiếm toàn bộ vùng content bên phải, sát lề trên, phải, dưới (trừ lề nhỏ)
-    content_x = int(w * 4 / 12) + 20
-    content_width = w - content_x - 20
-    board_height = 420  # Tăng chiều cao cho sát mép dưới vùng content
-    board_y = 50
-    board_rect = pygame.Rect(content_x, board_y, content_width, board_height)
-    pygame.draw.rect(screen, (255,255,255), board_rect, border_radius=18)
-    pygame.draw.rect(screen, (80,80,80), board_rect, 4, border_radius=18)
-    # Vẽ các xe nếu có board
-    if board:
-        for v in board.vehicles:
-            curr_v = board.vehicles[v]
-            screen.blit(curr_v.image, (curr_v.pos[0] * cell_size + board_rect.x  , curr_v.pos[1] * cell_size + board_rect.y))
+def draw_alg_buttons(screen, x, y, selected_idx):
+    for i, img in enumerate(alg_button_default_imgs):
+        row = i // alg_grid_cols
+        col = i % alg_grid_cols
+        btn_x = x + col * (alg_button_size + alg_button_margin)
+        btn_y = y + row * (alg_button_size + alg_button_margin)
+        if i < len(alg_button_selected_imgs) and i == selected_idx:
+            btn_img = pygame.transform.scale(alg_button_selected_imgs[i], (alg_button_size, alg_button_size))
+        else:
+            btn_img = pygame.transform.scale(img, (alg_button_size, alg_button_size))
+        screen.blit(btn_img, (btn_x, btn_y))
+    return
 
-# ================== VÙNG VẼ STATISTICS (MÔ TẢ/THỐNG KÊ) ==================
-def draw_statistics(screen, stats):
-    # Statistics sát dưới hai nút, cùng chiều rộng với board
-    content_x = int(w * 4 / 12) + 20
-    content_width = w - content_x - 20
-    board_height = 420
-    board_y = 50
-    button_y = board_y + board_height + 24
-    statistics_height = 90
-    statistics_y = button_y + 80
-    rect = pygame.Rect(content_x, statistics_y, content_width, statistics_height)
-    pygame.draw.rect(screen, (245,245,255), rect, border_radius=16)
-    pygame.draw.rect(screen, (100,100,180), rect, 3, border_radius=16)
-    font_title = pygame.font.SysFont('arial', 24, bold=True)
-    font_item = pygame.font.SysFont('arial', 20)
-    # Căn giữa tiêu đề 'Statistics' phía trên các stats
-    text = font_title.render('Statistics', True, (60,60,120))
-    text_rect = text.get_rect(center=(rect.x+rect.width//2, rect.y+22))
-    screen.blit(text, text_rect)
-    # Vẽ các thông tin stats, căn giữa ngang
-    labels = ['Time', 'Step count', 'Expanded node', 'Memory Usage']
-    values = [stats.get(label, '-') for label in labels]
-    stat_text = '   |   '.join([f'{label}: {val}' for label, val in zip(labels, values)])
-    t = font_item.render(stat_text, True, (40,40,80))
-    t_rect = t.get_rect(center=(rect.x+rect.width//2, rect.y+statistics_height//2+18))
-    screen.blit(t, t_rect)
+def get_alg_button_at_pos(mx, my, x, y):
+    for i in range(len(alg_button_default_imgs)):
+        row = i // alg_grid_cols
+        col = i % alg_grid_cols
+        btn_x = x + col * (alg_button_size + alg_button_margin)
+        btn_y = y + row * (alg_button_size + alg_button_margin)
+        rect = pygame.Rect(btn_x, btn_y, alg_button_size, alg_button_size)
+        if rect.collidepoint(mx, my):
+            return i
+    return None
 
-# ================== VÙNG VẼ NÚT (PLAY, RESET) ==================
-def draw_buttons(screen, is_playing):
-    # Hai nút căn giữa theo chiều ngang của board, nằm ngay dưới board, margin rõ ràng
-    content_x = int(w * 4 / 12) + 20
-    content_width = w - content_x - 20
-    board_height = 420
-    board_y = 50
-    button_y = board_y + board_height + 50  # margin rõ ràng dưới board
-    button_radius = 36
-    button_gap = 120  # khoảng cách giữa hai nút lớn hơn
-    center_x = content_x + content_width // 2
-    play_x = center_x - button_radius - button_gap//2
-    reset_x = center_x + button_radius + button_gap//2
-    import os
-    font = pygame.font.SysFont('arial', 18, bold=True)
-    # Nút Play/Pause dùng ảnh PNG (hiển thị hình tròn)
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    play_img_name = 'pause_btn.png' if is_playing else 'play_btn.png'
-    play_img_path = os.path.join(base_dir, 'assets', play_img_name)
-    if os.path.exists(play_img_path):
-        try:
-            play_img = pygame.image.load(play_img_path).convert_alpha()
-            play_img = pygame.transform.smoothscale(play_img, (button_radius*2, button_radius*2))
-            mask = pygame.Surface((button_radius*2, button_radius*2), pygame.SRCALPHA)
-            pygame.draw.circle(mask, (255,255,255,255), (button_radius, button_radius), button_radius)
-            play_img.blit(mask, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
-            screen.blit(play_img, (play_x-button_radius, button_y-button_radius))
-        except Exception as e:
-            print(f"[ERROR] Không thể load ảnh nút play/pause: {e}")
-            pygame.draw.circle(screen, (60,180,80), (play_x, button_y), button_radius)
-            pygame.draw.circle(screen, (255,255,255), (play_x, button_y), button_radius, 4)
-    else:
-        print(f"[ERROR] Không tìm thấy file ảnh: {play_img_path}")
-        pygame.draw.circle(screen, (60,180,80), (play_x, button_y), button_radius)
-        pygame.draw.circle(screen, (255,255,255), (play_x, button_y), button_radius, 4)
-    # Nút Reset dùng ảnh PNG (hiển thị hình tròn)
-    reset_img_path = os.path.join(base_dir, 'assets', 'reset_btn.png')
-    if os.path.exists(reset_img_path):
-        try:
-            reset_img = pygame.image.load(reset_img_path).convert_alpha()
-            reset_img = pygame.transform.smoothscale(reset_img, (button_radius*2, button_radius*2))
-            # Tạo surface tròn mask
-            mask = pygame.Surface((button_radius*2, button_radius*2), pygame.SRCALPHA)
-            pygame.draw.circle(mask, (255,255,255,255), (button_radius, button_radius), button_radius)
-            # Áp dụng mask alpha lên ảnh
-            reset_img.blit(mask, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
-            screen.blit(reset_img, (reset_x-button_radius, button_y-button_radius))
-        except Exception as e:
-            print(f"[ERROR] Không thể load ảnh nút reset: {e}")
-            orange = (255,204,102)
-            pygame.draw.circle(screen, orange, (reset_x, button_y), button_radius)
-            pygame.draw.circle(screen, (255,255,255), (reset_x, button_y), button_radius, 4)
-    else:
-        print(f"[ERROR] Không tìm thấy file ảnh: {reset_img_path}")
-        orange = (255,204,102)
-        pygame.draw.circle(screen, orange, (reset_x, button_y), button_radius)
-        pygame.draw.circle(screen, (255,255,255), (reset_x, button_y), button_radius, 4)
-
-# ================== XỬ LÝ SỰ KIỆN CHỌN MENU, NÚT ==================
-def handle_map_selection(event, maps, selected_map):
-    # Xử lý click chọn map, trả về chỉ số map mới (ô nào được chọn thì highlight)
-    menu_width = int(w * 4 / 12)
-    padding_x = 10
-    padding_y = 18
-    grid_size = 4
-    cell_margin = 8
-    cell_size = (menu_width-60 - 2*padding_x - (grid_size+1)*cell_margin) // grid_size
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        mx, my = event.pos
-        start_x = 30 + padding_x + cell_margin
-        start_y = 50 + padding_y + 40
-        for row in range(grid_size):
-            for col in range(grid_size):
-                # Không xử lý ô cuối cùng (ô trống)
-                if row == grid_size-1 and col == grid_size-1:
-                    continue
-                idx = row*grid_size+col
-                cell_rect = pygame.Rect(
-                    start_x + col*(cell_size+cell_margin),
-                    start_y + row*(cell_size+cell_margin),
-                    cell_size, cell_size
-                )
-                if cell_rect.collidepoint(mx, my):
-                    return idx
-    return selected_map
-
-def handle_algorithm_selection(event, algorithms, selected_algorithm):
-    # Xử lý click chọn thuật toán, trả về chỉ số thuật toán mới (layout 2x2, khung nhỏ hơn)
-    menu_width = int(w * 4 / 12)
-    alg_width = int((menu_width-60) * 0.75)
-    padding_x = 10
-    padding_y = 12
-    grid_size = 2
-    cell_margin = 8
-    cell_size = (alg_width - 2*padding_x - (grid_size+1)*cell_margin) // grid_size
-    map_grid_size = 4
-    map_cell_margin = 8
-    map_cell_size = (menu_width-60 - 2*padding_x - (map_grid_size+1)*map_cell_margin) // map_grid_size
-    map_rect_height = 50 + map_grid_size*map_cell_size + (map_grid_size+1)*map_cell_margin + 18*2
-    margin_top = 36
-    rect_y = 50 + map_rect_height + margin_top
-    alg_x = 30 + ((menu_width-60) - alg_width)//2
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        mx, my = event.pos
-        idx = 0
-        start_x = alg_x + padding_x + cell_margin
-        start_y = rect_y + padding_y + 32
-        for row in range(grid_size):
-            for col in range(grid_size):
-                if idx >= len(algorithms):
-                    continue
-                cell_rect = pygame.Rect(
-                    start_x + col*(cell_size+cell_margin),
-                    start_y + row*(cell_size+cell_margin),
-                    cell_size, cell_size
-                )
-                if cell_rect.collidepoint(mx, my):
-                    return idx
-                idx += 1
-    return selected_algorithm
-
-def handle_play_pause_button(event, is_playing):
-    # Xử lý click nút Play/Pause, trả về trạng thái mới
-    content_x = int(w * 4 / 12) + 20
-    content_width = w - content_x - 20
-    board_height = 420
-    board_y = 50
-    button_y = board_y + board_height + 50
-    button_radius = 36
-    button_gap = 120
-    center_x = content_x + content_width // 2
-    play_x = center_x - button_radius - button_gap//2
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        mx, my = event.pos
-        if (mx-play_x)**2 + (my-button_y)**2 <= button_radius**2:
-            return not is_playing
-    return is_playing
-
-def handle_reset_button(event):
-    # Xử lý click nút Reset, trả về True nếu click
-    # Liên kết: Được gọi trong main_gui, khi True thì reset lại trạng thái board
-    reset_x = int(w * 4 / 12) + 200
-    reset_y = 520
-    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-        mx, my = event.pos
-        if (mx-reset_x)**2 + (my-reset_y)**2 <= 36**2:
-            return True
-    return False
-
-def update_stats(time, step_count, expanded_node, memory_usage):
-    # Hàm tạo dict stats để truyền cho draw_stats
-    # Liên kết: Được gọi khi cập nhật thông tin thống kê sau khi giải xong
-    return {
-        'Time': time,
-        'Step count': step_count,
-        'Expanded node': expanded_node,
-        'Memory Usage': memory_usage
-    }
-
-def load_board_from_map(map_id):
-    # Hàm này cần trả về một instance board tương ứng với map_id
-    # Nếu không load được, trả về board giả lập để không bị crash giao diện
-    try:
-        from puzzle import Board
-        return Board(map_id)
-    except Exception as e:
-        print(f"[ERROR] Không thể load board cho map {map_id}: {e}")
-        # Board giả lập cho test giao diện (không có xe)
-        class DummyBoard:
-            def __init__(self):
-                self.vehicles = {}
-            def move(self, vid, step):
-                pass
-        return DummyBoard()
-
-# ================== HÀM MAIN GIAO DIỆN ==================
-def main_gui():
-    # Hàm khởi tạo và chạy vòng lặp giao diện chính
-    # Liên kết: Gọi các hàm vẽ và xử lý sự kiện ở trên
-    pygame.init()
-    screen = pygame.display.set_mode((w, h))
-    pygame.display.set_caption("Rush Hour Game")
-    background = pygame.Surface(screen.get_size())
-    background = background.convert()
-    background.fill((240,240,240))
-    
-    # Dữ liệu mẫu
-    maps = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
-            '11', '12', '13', '14', '15']
-    algorithms = ['BFS', 'DFS', 'UCS', 'A*']
-    selected_map = 0
-    selected_algorithm = 0
-    stats = update_stats('-', '-', '-', '-')
-    # ==== BỔ SUNG: Viết logic load board thực tế ở file khác và import vào đây ====
-    board = load_board_from_map(maps[selected_map])  # Mặc định hiển thị map 1
+def display_console(board):
+    background_board_orig = pygame.image.load("./assets/background_board.png")
+    background_board_orig = pygame.transform.scale(background_board_orig, (w_board, w_board))
     running = True
     is_playing = False
-    last_move_time = pygame.time.get_ticks()
-    move_delay = 1000  # ms
-    # ==== BỔ SUNG: Viết các hàm giải thuật, trả về step list/generator, import vào ====
-    solver_steps = None  # Lưu iterator/generator các bước giải
+    delay_time = 1000
+    global selected_map_idx
+    global selected_alg_idx
+
+    # Position draw grid map buttons on background_map
+    map_grid_x = background_map.rect.x + 30
+    map_grid_y = background_map.rect.y + 70
+
+    # Position draw grid alg buttons on background_alg
+    alg_grid_x = background_alg.rect.x + 30
+    alg_grid_y = background_alg.rect.y + 70
+
     while running:
+        screen.fill((240,240,240))
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
-            # Xử lý chọn menu và nút
-            new_selected_map = handle_map_selection(event, maps, selected_map)
-            if new_selected_map != selected_map:
-                selected_map = new_selected_map
-                # ==== BỔ SUNG: Viết logic load board thực tế ở file khác và import vào đây ====
-                new_board = load_board_from_map(maps[selected_map])
-                if new_board is not None:
-                    board = new_board  # Chỉ cập nhật nếu load thành công
-                    is_playing = False  # Dừng auto-play khi đổi map
-                    # ==== BỔ SUNG: Khi đổi map, cần reset solver_steps về None ====
-                    solver_steps = None
-                else:
-                    print(f"[ERROR] Không thể load board cho map {maps[selected_map]}, giữ nguyên board cũ!")
-            
-            # Xử lý chọn thuật toán
-            # Nếu thuật toán được chọn khác, reset board và dừng auto-play
-            new_selected_algorithm = handle_algorithm_selection(event, algorithms, selected_algorithm)
-            if new_selected_algorithm != selected_algorithm:
-                selected_algorithm = new_selected_algorithm
-                # ==== BỔ SUNG: Khi đổi thuật toán, reset lại board về trạng thái ban đầu ====
-                new_board = load_board_from_map(maps[selected_map])
-                if new_board is not None:
-                    board = new_board
-                    is_playing = False
-                    # ==== BỔ SUNG: Khi đổi thuật toán, cần reset solver_steps về None ====
-                    solver_steps = None
-                else:
-                    print(f"[ERROR] Không thể reset board khi đổi thuật toán, giữ nguyên board cũ!")
-            prev_is_playing = is_playing
-            is_playing = handle_play_pause_button(event, is_playing) if board else False
-            if is_playing and not prev_is_playing:
-                last_move_time = pygame.time.get_ticks()  # Reset timer khi bắt đầu play
-                # ==== BỔ SUNG: Khi Play, lấy step list/generator từ thuật toán đã chọn ====
-                # solver_steps = solve_board(board, selected_algorithm)  # <-- Viết hàm này ở file khác và import vào
-            if handle_reset_button(event):
-                new_board = load_board_from_map(maps[selected_map])
-                if new_board is not None:
-                    board = new_board
-                    is_playing = False
-                    # ==== BỔ SUNG: Khi reset, cần reset solver_steps về None ====
-                    solver_steps = None
-                else:
-                    print(f"[ERROR] Không thể reset board cho map {maps[selected_map]}, giữ nguyên board cũ!")
-        # Auto-play: chỉ chạy khi đang play và có board
-        if is_playing and board is not None:
-            now = pygame.time.get_ticks()
-            if now - last_move_time >= move_delay:
-                # ==== BỔ SUNG: Khi Play, lấy step tiếp theo từ thuật toán đã chọn ====
-                # Ví dụ:
-                # if solver_steps is not None:
-                #     try:
-                #         move = next(solver_steps)
-                #         board.move(*move)
-                #     except StopIteration:
-                #         is_playing = False  # Dừng khi hết bước
-                # else:
-                #     pass
-                board.move("0", 1)  # Thay bằng logic move thực tế
-                last_move_time = now
-        screen.blit(background, (0,0))
-        draw_map_list(screen, maps, selected_map)
-        draw_algorithm_list(screen, algorithms, selected_algorithm)
-        if board:
-            draw_board(screen, board)
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mx, my = event.pos
+                idx_map = get_map_button_at_pos(mx, my, map_grid_x, map_grid_y)
+                idx_alg = get_alg_button_at_pos(mx, my, alg_grid_x, alg_grid_y)
+                if idx_alg is not None:
+                    selected_alg_idx = idx_alg
+                if idx_map is not None:
+                    selected_map_idx = idx_map
+                # Toggle play/pause button
+                if (is_playing and pause_button.rect.collidepoint(mx, my)) or (not is_playing and play_button.rect.collidepoint(mx, my)):
+                    is_playing = not is_playing
+        background_board = background_board_orig.copy()
+
+        if is_playing:
+            pause_button.draw(screen)
         else:
-            draw_board(screen, None)
-        draw_buttons(screen, is_playing)
-        draw_statistics(screen, stats)
+            play_button.draw(screen)
+        reset_button.draw(screen)
+        background_map.draw(screen)
+        background_alg.draw(screen)
+        # step_count.draw(screen)
+
+        # Draw map button on background_map
+        draw_map_buttons(screen, map_grid_x, map_grid_y, selected_map_idx)
+        draw_alg_buttons(screen, alg_grid_x, alg_grid_y, selected_alg_idx)
+
+        for v in board.vehicles:
+            curr_v = board.vehicles[v]
+            scaled_img = pygame.transform.scale(curr_v.image, (int(curr_v.image.get_width() * scale_board * 0.01), int(curr_v.image.get_height() * scale_board * 0.01)))
+            background_board.blit(scaled_img, (curr_v.pos[0] * stride_x + scale_board, curr_v.pos[1] * stride_y + scale_board))
+
+        screen.blit(background_board, (x_pos_board, 0))
+        pygame.time.delay(delay_time)
         pygame.display.update()
     pygame.quit()
+    exit()
 
-# ========== END ==========
-if __name__ == "__main__":
-    main_gui()
