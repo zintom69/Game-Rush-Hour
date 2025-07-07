@@ -16,8 +16,8 @@ play_btn_img = pygame.image.load("./assets/ControlButtons/Play.png")
 reset_btn_img = pygame.image.load("./assets/ControlButtons/Reset.png")
 pause_btn_img = pygame.image.load("./assets/ControlButtons/Pause.png")
 
-background_map_img = pygame.image.load("./assets/MapButtons/Map.png")
-background_alg_img = pygame.image.load("./assets/AlgorithmButtons/Algorithm.png")
+background_map_img = pygame.image.load("./assets/MapButtons/Maps.png")
+background_alg_img = pygame.image.load("./assets/AlgorithmButtons/Algorithms.png")
 
 # Load map buttons images
 map1_d = pygame.image.load("./assets/MapButtons/1(A).png")
@@ -72,9 +72,11 @@ play_button = Button(x_pos_board + w_board//2 - play_btn_img.get_width()*0.15 - 
 reset_button = Button(x_pos_board + w_board//2 + reset_btn_img.get_width()*0.15 + 25, w_board + 10, reset_btn_img, 0.15)
 pause_button = Button(x_pos_board + w_board//2 - pause_btn_img.get_width()*0.15 - 25, w_board + 10, pause_btn_img, 0.15)
 
+
 # Create background map and algorithm buttons
-background_map = Button(50, 20, background_map_img, 0.35)
-background_alg = Button(background_map.rect.x + background_map.rect.width//2 - background_alg_img.get_width()//2*0.25, background_map.rect.y + background_map.rect.height + 20, background_alg_img, 0.25)
+scale_bg_alg = 0.45
+background_map = Button(50, 20, background_map_img, 0.4)
+background_alg = Button(background_map.rect.x + background_map.rect.width//2 - background_alg_img.get_width()//2*scale_bg_alg, background_map.rect.y + background_map.rect.height + 20, background_alg_img, scale_bg_alg)
 # step_count = Button(100, 100, step_count_img, 1)
 
 screen = pygame.display.set_mode((w, h))
@@ -156,11 +158,14 @@ def display_console(board):
     map_grid_y = background_map.rect.y + 70
 
     # Position draw grid alg buttons on background_alg
-    alg_grid_x = background_alg.rect.x + 30
+    alg_grid_x = background_alg.rect.x + 40
     alg_grid_y = background_alg.rect.y + 70
 
     while running:
         screen.fill((240,240,240))
+        board = Board()
+        board.readMap(selected_map_idx)
+        board.stagePrepare()
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
