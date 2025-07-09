@@ -79,8 +79,8 @@ background_map = Button(50, 20, background_map_img, 0.4)
 background_alg = Button(background_map.rect.x + background_map.rect.width//2 - background_alg_img.get_width()//2*scale_bg_alg, background_map.rect.y + background_map.rect.height + 20, background_alg_img, scale_bg_alg)
 # step_count = Button(100, 100, step_count_img, 1)
 
-screen = pygame.display.set_mode((w, h))
-pygame.display.set_caption("Rush Hour Game")
+# screen = pygame.display.set_mode((w, h))
+# pygame.display.set_caption("Rush Hour Game")
 
 # Size and position for the node of map
 map_button_size = 50
@@ -144,12 +144,15 @@ def get_alg_button_at_pos(mx, my, x, y):
             return i
     return None
 
-def display_console(board):
-    background_board_orig = pygame.image.load("./assets/background_board.png")
-    background_board_orig = pygame.transform.scale(background_board_orig, (w_board, w_board))
+def display_console(solution):
+    # background_board_orig = pygame.image.load("./assets/background_board.png")
+    # background_board_orig = pygame.transform.scale(background_board_orig, (w_board, w_board))
+    screen = pygame.display.set_mode((w, h))
+    pygame.display.set_caption("Rush Hour Game")
     running = True
     is_playing = False
-    delay_time = 1000
+    is_reset = False
+    delay_time = 200
     global selected_map_idx
     global selected_alg_idx
 
@@ -161,11 +164,14 @@ def display_console(board):
     alg_grid_x = background_alg.rect.x + 40
     alg_grid_y = background_alg.rect.y + 70
 
+    path = solution.path()
+    path_len = solution.get_depth()
+    node_index = 0
     while running:
-        screen.fill((240,240,240))
-        board = Board()
-        board.readMap(selected_map_idx)
-        board.stagePrepare()
+        screen.fill((255,255,255))
+        map = Board()
+        map.readMap(selected_map_idx)
+        map.stagePrepare()
         for event in pygame.event.get():
             if event.type == QUIT:
                 running = False
@@ -180,12 +186,28 @@ def display_console(board):
                 # Toggle play/pause button
                 if (is_playing and pause_button.rect.collidepoint(mx, my)) or (not is_playing and play_button.rect.collidepoint(mx, my)):
                     is_playing = not is_playing
-        background_board = background_board_orig.copy()
+                if (is_reset and reset_button.rect.collidepoint(mx, my)) or (not is_reset and reset_button.rect.collidepoint(mx, my)):
+                    is_reset = True
+                    node_index = 0
+                    is_playing = False
+        draw_board(screen, map)
 
         if is_playing:
-            pause_button.draw(screen)
+            if node_index < path_len:
+                pause_button.draw(screen)
+                draw_board(screen, path[node_index].state)
+                node_index += 1
+            else:
+                is_playing = False
+                draw_board(screen, path[-1].state)
+                play_button.draw(screen)
         else:
             play_button.draw(screen)
+            if node_index < path_len:
+                draw_board(screen, path[node_index].state)
+            else:
+                draw_board(screen, path[-1].state)
+        
         reset_button.draw(screen)
         background_map.draw(screen)
         background_alg.draw(screen)
@@ -194,15 +216,34 @@ def display_console(board):
         # Draw map button on background_map
         draw_map_buttons(screen, map_grid_x, map_grid_y, selected_map_idx)
         draw_alg_buttons(screen, alg_grid_x, alg_grid_y, selected_alg_idx)
-
-        for v in board.vehicles:
-            curr_v = board.vehicles[v]
-            scaled_img = pygame.transform.scale(curr_v.image, (int(curr_v.image.get_width() * scale_board * 0.01), int(curr_v.image.get_height() * scale_board * 0.01)))
-            background_board.blit(scaled_img, (curr_v.pos[0] * stride_x + scale_board, curr_v.pos[1] * stride_y + scale_board))
-
-        screen.blit(background_board, (x_pos_board, 0))
+        
         pygame.time.delay(delay_time)
         pygame.display.update()
     pygame.quit()
     exit()
 
+def draw_board(screen, board):
+    background_board= pygame.image.load("./assets/background_board.png")
+    background_board = pygame.transform.scale(background_board, (w_board, w_board))
+    
+    for v in board.vehicles:
+        curr_v = board.vehicles[v]
+        scaled_img = pygame.transform.scale(curr_v.image, (int(curr_v.image.get_width() * scale_board * 0.01), int(curr_v.image.get_height() * scale_board * 0.01)))
+        background_board.blit(scaled_img, (curr_v.pos[0] * stride_x + scale_board, curr_v.pos[1] * stride_y + scale_board))
+    
+    screen.blit(background_board, (x_pos_board, 0))
+
+def display_algo(board):
+    screen = pygame.display.set_mode((w, h))
+    pygame.display.set_caption("Rush Hour Game")
+    running = True
+    while(running):
+        draw_board(screen, board)
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                running = False
+        pygame.display.update()
+
+    
+    pygame.quit()
+    exit()

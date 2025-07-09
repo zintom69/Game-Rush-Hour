@@ -10,7 +10,7 @@ class Problem:
         actions = []
         for vehicle in state.vehicles:
             for step in range(-4, 5):
-                if state.is_move(vehicle, step):
+                if step != 0 and state.is_move(vehicle, step):
                     actions.append((vehicle, step))
         return actions
     
@@ -28,7 +28,7 @@ class Problem:
         kind, step = action
         vehicle_length = state1.vehicles[kind].len
         if (state2.compare(self.result(state1, action))):
-            return c + abs(step) * vehicle_length
+            return c + abs(step)
         else:
             raise Exception("is not in the valid state")
     
@@ -76,8 +76,8 @@ class Node:
             self.depth = parent.depth + 1
     
     def __eq__(self, other):
-        return isinstance(other.state, self.state) and self.state.to_tuple() == other.state.to_tuple()
-    
+        return isinstance(other, Node) and self.state.to_tuple() == other.state.to_tuple()
+
     def expand(self, problem):
         return [self.child_node(problem, action) for action in problem.actions(self.state)]
     
@@ -97,3 +97,5 @@ class Node:
             node = node.parent
         return list(reversed(path_back))
 
+    def get_depth(self):
+        return self.depth

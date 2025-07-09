@@ -1,7 +1,7 @@
 from vehicle import Vehicle
 
 class Board:
-    def __init__(self, rows=6, cols=6):
+    def __init__(self, rows=6, cols=6): 
         self.rows= rows         
         self.cols = cols
         self.grid = []

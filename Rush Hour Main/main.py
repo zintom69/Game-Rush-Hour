@@ -8,28 +8,50 @@ from collections import deque
 # import pygame
 
 from puzzle import Board
-from ui import display_console
+from ui import display_console, display_algo
 from algorithms import Problem, Node, depth_first_tree_search, breadth_first_tree_search, ucs_search, a_star_search
-
+from solver import solve
 
 # pygame.init()
 # clock = pygame.time.Clock()
 
 # Map game
 board = Board()
-board.readMap(0)
+board.readMap(1)
 # print(board.grid)
 # print(board.stages[0])
-board.stagePrepare()
+# board.stagePrepare()
 # print(board)
-display_console(board)
 
-initial_state = board
-problem = Problem(initial_state, None)
-print(initial_state)
+# display_console(board)
 
-state = initial_state
-actions = problem.actions(state)
+# initial_state = board
+# problem = Problem(initial_state, None)
+# print(initial_state)
+# solution = depth_first_tree_search(problem)
+# display_console(solution)
+solve()
+
+
+# path = solution.path()
+# len = solution.get_depth()
+
+# cnt = 0
+# # print(path[cnt].state)
+# while cnt < len:
+#     print(path[cnt].state)
+#     cnt += 1
+
+
+
+
+# print("Problem is solved")
+# for node in solution.path():
+#     display_console_official(node.state)
+
+
+# state = initial_state
+# actions = problem.actions(state)
 
 # state2 = problem.result(state, actions[0])
 
