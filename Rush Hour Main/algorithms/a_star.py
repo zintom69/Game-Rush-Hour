@@ -1,36 +1,42 @@
 import heapq
-from .search import Problem, Node
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from ui import display_console
+from .search import Node
+
+class PriorityQueue:
+    def __init__(self):
+        self.heap = []
+        self.count = 0
+
+    def append(self, item, priority):
+        heapq.heappush(self.heap, (priority, self.count, item))
+        self.count += 1
+
+    def pop(self):
+        if self.heap:
+            return heapq.heappop(self.heap)[-1]
+        raise Exception('Error: Empty queue')
+
+    def __len__(self):
+        return len(self.heap)
 
 def a_star_search(problem):
-    frontier = [(problem.h(problem.initial_state) + 0, 0, 0, Node(problem.initial_state))]  # (f_cost, g_cost, unique_id, node)
-    visited = {}
-    visited[problem.initial_state.to_tuple()] = 0
-    unique_id = 1
-    # steps = 0
+    node = Node(problem.initial_state)
+    frontier = PriorityQueue()
+    frontier.append(node, node.path_cost + problem.h(node.state))
+    explored = dict()  # instead of set in AIMA
+
     while frontier:
-        f_cost, g_cost, _, node = heapq.heappop(frontier)
-        # display_console(node.state)
-        if visited[node.state.to_tuple()] < g_cost:
+        current_node = frontier.pop()
+        if problem.goal_test(current_node.state):
+            # if display:
+            #     print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
+            return current_node
+        state_tuple = current_node.state.to_tuple()
+        if state_tuple in explored and explored[state_tuple] <= current_node.path_cost:
             continue
-        # steps += 1
-        if problem.goal_test(node.state):
-            # print(f"A* đã thực hiện {steps} bước tìm kiếm.")
-            # display_console(node.state)
-            return node
-        for child in node.expand(problem):
-            if node.parent and child.state.to_tuple() == node.parent.state.to_tuple():
-                continue
+        explored[state_tuple] = current_node.path_cost
+        for child in current_node.expand(problem):
             child_tuple = child.state.to_tuple()
-            g_cost = child.path_cost  # path_cost now includes vehicle length
-            h_cost = problem.h(child.state)
-            f_cost = g_cost + h_cost
-            if child_tuple not in visited or g_cost < visited[child_tuple]:
-                visited[child_tuple] = g_cost
-                heapq.heappush(frontier, (f_cost, g_cost, unique_id, child))
-                unique_id += 1
-    # print(f"A* đã thực hiện {steps} bước tìm kiếm (không tìm thấy lời giải).")
+            f = child.path_cost + problem.h(child.state)
+            if child_tuple not in explored or child.path_cost < explored[child_tuple]:
+                frontier.append(child, f)
     return None
