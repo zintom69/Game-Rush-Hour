@@ -91,6 +91,9 @@ map_grid_cols = 4
 map_grid_rows = (len(map_button_default_imgs) + map_grid_cols - 1) // map_grid_cols
 selected_map_idx = 0
 
+# Color
+white = (255, 255, 255)
+
 def draw_map_buttons(screen, x, y, selected_idx):
     for i, img in enumerate(map_button_default_imgs):
         row = i // map_grid_cols
@@ -257,3 +260,14 @@ def draw_step(screen, step_index):
     x_step = 500
     y_step = 620
     screen.blit(step_draw, (x_step, y_step))
+
+def draw_loading(screen):
+    screen.fill(white)
+    font = pygame.font.Font(None, 48)
+    loading_text = font.render("Loading...", True, (0, 0, 0))
+    screen.blit(loading_text, (w//2 - 100, h//2 - 50))
+
+def draw_no_solution(screen):
+    font = pygame.font.Font(None, 48)
+    loading_text = font.render("No solution!", True, (255, 0, 0))
+    screen.blit(loading_text, (w//2 - 100, h//2 - 50))

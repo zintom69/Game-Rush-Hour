@@ -19,6 +19,18 @@ def initial_map(selected_map_idx):
     map.stagePrepare()
     return map
 
+def no_solution_processing(screen):
+    is_pressed = True
+    background_no_solu = pygame.Rect(0, 0, w, h)
+    while is_pressed:
+        draw_no_solution(screen)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                m_x, m_y = event.pos
+                if background_no_solu.collidepoint(m_x, m_y):
+                    is_pressed = False
+
 def solve():
     pygame.init()
     screen = pygame.display.set_mode((w, h))
@@ -26,7 +38,7 @@ def solve():
     running = True
     is_playing = False
     is_reset = False
-    delay_time = 200
+    delay_time = 250
     global selected_map_idx
     global selected_alg_idx
 
@@ -61,7 +73,7 @@ def solve():
                 
                 #Initial state + map + button
                 if selected_map_idx != idx_map_arg and idx_map_arg != None:
-                    print(idx_map_arg)
+                    print(f"Map: {idx_map_arg + 1}")
                     selected_map_idx = idx_map_arg
                     
                     node_index = 0
@@ -72,6 +84,7 @@ def solve():
                     path_len = 0
 
                 if selected_alg_idx != idx_alg_arg and idx_alg_arg != None:
+                    print(f"Algorithm: {idx_alg_arg + 1}")
                     node_index = 0
                     selected_alg_idx = idx_alg_arg
                     is_algo_changed = True
@@ -80,10 +93,19 @@ def solve():
                 
                 if (is_map_changed == True or is_algo_changed == True) and play_button.rect.collidepoint(mx, my) and not is_playing:
                     print("Loading algorithm...")
+                    draw_loading(screen)
+                    pygame.display.update()
+
                     problem = Problem(initial_state, None)
                     solution = solve_by_search(selected_alg_idx, problem)
-                    path = solution.path()
-                    path_len = solution.get_depth()
+                    screen.fill(white)
+                    pygame.display.update()
+                    if solution == None:
+                        no_solution_processing(screen)
+                        continue
+                    else: 
+                        path = solution.path()
+                        path_len = solution.get_depth()
 
                     is_map_changed = is_algo_changed = False                    
 
@@ -111,6 +133,7 @@ def solve():
                 is_playing = False
                 draw_board(screen, path[-1].state)
                 play_button.draw(screen)
+            pygame.time.delay(delay_time)
         else:
             play_button.draw(screen)
             if node_index == 0:
@@ -130,7 +153,7 @@ def solve():
         draw_map_buttons(screen, map_grid_x, map_grid_y, selected_map_idx)
         draw_alg_buttons(screen, alg_grid_x, alg_grid_y, selected_alg_idx)
         
-        pygame.time.delay(delay_time)
+        
         pygame.display.update()
     pygame.quit()
     exit()

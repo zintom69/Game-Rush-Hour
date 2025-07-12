@@ -1,5 +1,5 @@
 import heapq
-from .search import Node
+from .search import Node, time, TIME_LIMIT
 
 class PriorityQueue:
     def __init__(self):
@@ -23,12 +23,15 @@ def a_star_search(problem):
     frontier = PriorityQueue()
     frontier.append(node, node.path_cost + problem.h(node.state))
     explored = dict()  # instead of set in AIMA
+    start_time = time.time()
 
     while frontier:
+        if time.time() - start_time > TIME_LIMIT:
+            print("Time limit exceeded!")
+            return None
+
         current_node = frontier.pop()
         if problem.goal_test(current_node.state):
-            # if display:
-            #     print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
             return current_node
         state_tuple = current_node.state.to_tuple()
         if state_tuple in explored and explored[state_tuple] <= current_node.path_cost:

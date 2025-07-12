@@ -1,4 +1,6 @@
 # from ..algorithms import bfs, dfs, ucs, a_star
+TIME_LIMIT = 600
+import time
 
 class Problem:
     def __init__(self, initial_state, goal=None):
