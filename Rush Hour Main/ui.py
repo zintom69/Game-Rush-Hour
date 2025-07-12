@@ -5,6 +5,7 @@ from button import Button
 
 w = 1200
 h = 675
+
 w_board = w//2
 scale_board = w_board*100//800
 stride_x  = scale_board
@@ -68,9 +69,10 @@ alg_button_selected_imgs = [bfs_selected, dfs_selected, ucs_selected, a_selected
 # step_count_img = pygame.image.load("./assets/MapButtons/StepCount.png")
 
 # Create button
-play_button = Button(x_pos_board + w_board//2 - play_btn_img.get_width()*0.15 - 25, w_board + 10, play_btn_img, 0.15)
-reset_button = Button(x_pos_board + w_board//2 + reset_btn_img.get_width()*0.15 + 25, w_board + 10, reset_btn_img, 0.15)
-pause_button = Button(x_pos_board + w_board//2 - pause_btn_img.get_width()*0.15 - 25, w_board + 10, pause_btn_img, 0.15)
+scale_button = 0.15
+play_button = Button(x_pos_board + w_board//2 - play_btn_img.get_width()*scale_button - 25, w_board + 10, play_btn_img, scale_button)
+reset_button = Button(x_pos_board + w_board//2 + reset_btn_img.get_width()*scale_button + 25, w_board + 10, reset_btn_img, scale_button)
+pause_button = Button(x_pos_board + w_board//2 - pause_btn_img.get_width()*scale_button - 25, w_board + 10, pause_btn_img, scale_button)
 
 
 # Create background map and algorithm buttons
@@ -247,3 +249,11 @@ def display_algo(board):
     
     pygame.quit()
     exit()
+
+
+def draw_step(screen, step_index):
+    font = pygame.font.Font(None, 36)
+    step_draw = font.render("Step: " + str(step_index), True, (0, 0, 0))
+    x_step = 500
+    y_step = 620
+    screen.blit(step_draw, (x_step, y_step))

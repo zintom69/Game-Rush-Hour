@@ -13,7 +13,7 @@ class Board:
         
     # Read file -> map
     def readMap(self, map_index):
-        map_path = "./maps/map" + str(map_index) + ".txt"
+        map_path = "./maps/map" + str(map_index + 1) + ".txt"
         with open(map_path, "r") as map_file:
             for line in map_file:
                 word = line.strip().split()

@@ -2,13 +2,13 @@ from ui import *
 from algorithms import Problem, Node, depth_first_tree_search, breadth_first_tree_search, ucs_search, a_star_search
 
 def solve_by_search(idx_algo, problem):
-    if idx_algo == 1:
+    if idx_algo == 0:
         return breadth_first_tree_search(problem)
-    elif idx_algo == 2:
+    elif idx_algo == 1:
         return depth_first_tree_search(problem)
-    elif idx_algo == 3:
+    elif idx_algo == 2:
         return ucs_search(problem)
-    elif idx_algo == 4:
+    elif idx_algo == 3:
         return a_star_search(problem)
     else:
         raise Exception("Algorithm is not valid")
@@ -20,6 +20,7 @@ def initial_map(selected_map_idx):
     return map
 
 def solve():
+    pygame.init()
     screen = pygame.display.set_mode((w, h))
     pygame.display.set_caption("Rush Hour Game")
     running = True
@@ -39,8 +40,8 @@ def solve():
 
 
 
-    selected_map_idx = idx_map_arg = 1
-    selected_alg_idx = idx_alg_arg = 1
+    selected_map_idx = idx_map_arg = 0
+    selected_alg_idx = idx_alg_arg = 0
     path = []
     path_len = 0
     initial_state = initial_map(selected_map_idx)
@@ -78,7 +79,7 @@ def solve():
                     path_len = 0
                 
                 if (is_map_changed == True or is_algo_changed == True) and play_button.rect.collidepoint(mx, my) and not is_playing:
-                    print("debug")
+                    print("Loading algorithm...")
                     problem = Problem(initial_state, None)
                     solution = solve_by_search(selected_alg_idx, problem)
                     path = solution.path()
@@ -125,6 +126,7 @@ def solve():
         # step_count.draw(screen)
 
         # Draw map button on background_map
+        draw_step(screen, node_index)
         draw_map_buttons(screen, map_grid_x, map_grid_y, selected_map_idx)
         draw_alg_buttons(screen, alg_grid_x, alg_grid_y, selected_alg_idx)
         
